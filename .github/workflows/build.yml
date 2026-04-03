@@ -11,7 +11,7 @@ jobs:
   windows-x64:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4.2.2        # ← updated
+      - uses: actions/checkout@v4.2.2
       - name: Configure
         run: cmake -B build -A x64
       - name: Build
@@ -21,7 +21,7 @@ jobs:
       - name: Package
         run: cd build && cpack -G NSIS -C Release
       - name: Upload
-        uses: actions/upload-artifact@v4.4.3  # ← updated
+        uses: actions/upload-artifact@v4.4.3
         with:
           name: windows-x64
           path: build/*.exe
@@ -117,30 +117,8 @@ jobs:
           name: fedora-x64
           path: build/*.rpm
 
-  macos-x64:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4.2.2
-      - name: Configure & Build
-        run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_OSX_ARCHITECTURES=x86_64
-          cmake --build build
-      - name: Package
-        run: cd build && cpack -G DragNDrop
-      - name: Upload binary for universal merge
-        uses: actions/upload-artifact@v4.4.3
-        with:
-          name: macos-x64-bin
-          path: build/untitledmfkmkmk
-      - name: Upload DMG
-        uses: actions/upload-artifact@v4.4.3
-        with:
-          name: macos-x64
-          path: build/*.dmg
-
   macos-arm64:
-    runs-on: macos-latest
+    runs-on: macos-latest           # Apple Silicon M1/M2/M3/M4
     steps:
       - uses: actions/checkout@v4.2.2
       - name: Configure & Build
@@ -148,42 +126,12 @@ jobs:
           cmake -B build -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_OSX_ARCHITECTURES=arm64
           cmake --build build
-      - name: Upload binary for universal merge
-        uses: actions/upload-artifact@v4.4.3
-        with:
-          name: macos-arm64-bin
-          path: build/untitledmfkmkmk
-
-  macos-universal:
-    runs-on: macos-latest
-    needs: [macos-x64, macos-arm64]
-    steps:
-      - uses: actions/checkout@v4.2.2
-      - name: Download x64 binary
-        uses: actions/download-artifact@v4.1.8   # ← updated
-        with:
-          name: macos-x64-bin
-          path: bin-x64
-      - name: Download arm64 binary
-        uses: actions/download-artifact@v4.1.8
-        with:
-          name: macos-arm64-bin
-          path: bin-arm64
-      - name: Merge with lipo
-        run: |
-          chmod +x bin-x64/untitledmfkmkmk bin-arm64/untitledmfkmkmk
-          lipo -create bin-x64/untitledmfkmkmk bin-arm64/untitledmfkmkmk \
-               -output untitledmfkmkmk-universal
-      - name: Build universal DMG
-        run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=Release
-          cp untitledmfkmkmk-universal build/untitledmfkmkmk
-          cmake --install build --prefix staging
-          cd build && cpack -G DragNDrop
+      - name: Package
+        run: cd build && cpack -G DragNDrop
       - name: Upload
         uses: actions/upload-artifact@v4.4.3
         with:
-          name: macos-universal
+          name: macos-arm64
           path: build/*.dmg
 
   release:
@@ -195,8 +143,7 @@ jobs:
       - ubuntu-x64
       - ubuntu-arm64
       - fedora-x64
-      - macos-x64
-      - macos-universal
+      - macos-arm64
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4.1.8
