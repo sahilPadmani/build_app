@@ -11,7 +11,7 @@ jobs:
   windows-x64:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2        # ← updated
       - name: Configure
         run: cmake -B build -A x64
       - name: Build
@@ -21,7 +21,7 @@ jobs:
       - name: Package
         run: cd build && cpack -G NSIS -C Release
       - name: Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.4.3  # ← updated
         with:
           name: windows-x64
           path: build/*.exe
@@ -29,7 +29,7 @@ jobs:
   windows-arm64:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
       - name: Configure
         run: cmake -B build -A ARM64
       - name: Build
@@ -39,7 +39,7 @@ jobs:
       - name: Package
         run: cd build && cpack -G NSIS -C Release
       - name: Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.4.3
         with:
           name: windows-arm64
           path: build/*.exe
@@ -47,7 +47,7 @@ jobs:
   windows-x86:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
       - name: Configure
         run: cmake -B build -A Win32
       - name: Build
@@ -57,7 +57,7 @@ jobs:
       - name: Package
         run: cd build && cpack -G NSIS -C Release
       - name: Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.4.3
         with:
           name: windows-x86
           path: build/*.exe
@@ -65,7 +65,7 @@ jobs:
   ubuntu-x64:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
       - name: Install deps
         run: sudo apt-get update && sudo apt-get install -y cmake build-essential
       - name: Configure & Build
@@ -75,7 +75,7 @@ jobs:
       - name: Package
         run: cd build && cpack -G DEB
       - name: Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.4.3
         with:
           name: ubuntu-x64
           path: build/*.deb
@@ -83,7 +83,7 @@ jobs:
   ubuntu-arm64:
     runs-on: ubuntu-24.04-arm
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
       - name: Install deps
         run: sudo apt-get update && sudo apt-get install -y cmake build-essential
       - name: Configure & Build
@@ -93,7 +93,7 @@ jobs:
       - name: Package
         run: cd build && cpack -G DEB
       - name: Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.4.3
         with:
           name: ubuntu-arm64
           path: build/*.deb
@@ -102,7 +102,7 @@ jobs:
     runs-on: ubuntu-latest
     container: fedora:latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
       - name: Install deps
         run: dnf install -y cmake gcc-c++ make rpm-build
       - name: Configure & Build
@@ -112,15 +112,15 @@ jobs:
       - name: Package
         run: cd build && cpack -G RPM
       - name: Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.4.3
         with:
           name: fedora-x64
           path: build/*.rpm
 
   macos-x64:
-    runs-on: macos-13
+    runs-on: macos-13              # ← FIXED: removed "-us-default" suffix
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
       - name: Configure & Build
         run: |
           cmake -B build -DCMAKE_BUILD_TYPE=Release \
@@ -129,12 +129,12 @@ jobs:
       - name: Package
         run: cd build && cpack -G DragNDrop
       - name: Upload binary for universal merge
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.4.3
         with:
           name: macos-x64-bin
           path: build/untitledmfkmkmk
       - name: Upload DMG
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.4.3
         with:
           name: macos-x64
           path: build/*.dmg
@@ -142,14 +142,14 @@ jobs:
   macos-arm64:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
       - name: Configure & Build
         run: |
           cmake -B build -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_OSX_ARCHITECTURES=arm64
           cmake --build build
       - name: Upload binary for universal merge
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.4.3
         with:
           name: macos-arm64-bin
           path: build/untitledmfkmkmk
@@ -158,14 +158,14 @@ jobs:
     runs-on: macos-latest
     needs: [macos-x64, macos-arm64]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
       - name: Download x64 binary
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.1.8   # ← updated
         with:
           name: macos-x64-bin
           path: bin-x64
       - name: Download arm64 binary
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.1.8
         with:
           name: macos-arm64-bin
           path: bin-arm64
@@ -181,7 +181,7 @@ jobs:
           cmake --install build --prefix staging
           cd build && cpack -G DragNDrop
       - name: Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.4.3
         with:
           name: macos-universal
           path: build/*.dmg
@@ -199,7 +199,7 @@ jobs:
       - macos-universal
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.1.8
         with:
           path: artifacts
           merge-multiple: true
